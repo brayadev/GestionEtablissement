@@ -7,7 +7,6 @@ pipeline {
 
     stages {
 
-
         stage('Checkout') {
             steps {
                 checkout([$class: 'GitSCM',
@@ -23,18 +22,33 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-                    steps {
-                        sh './vendor/bin/phpunit --configuration phpunit.xml'
-                    }
-                }
+        stage('Prepare Database') {
+            steps {
+                // Créer la base de données SQLite si elle n'existe pas
+                sh 'touch /var/jenkins_home/workspace/Gestion pipeline/database/database.sqlite'
+                sh 'chmod 775 /var/jenkins_home/workspace/Gestion pipeline/database'
+            }
+        }
 
+        stage('Run Migrations') {
+            steps {
+                // Exécuter les migrations
+                sh 'php artisan migrate --force'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                // Lancer les tests PHPUnit
+                sh './vendor/bin/phpunit --configuration phpunit.xml'
+            }
+        }
 
         stage('Build Docker Image') {
-                    steps {
-                        sh "docker build -t ${DOCKER_IMAGE}:latest ."
-                    }
-                }
+            steps {
+                sh "docker build -t ${DOCKER_IMAGE}:latest ."
+            }
+        }
     }
 
     post {
