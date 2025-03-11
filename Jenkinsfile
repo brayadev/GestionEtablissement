@@ -9,26 +9,26 @@ pipeline {
         stage('Install Composer') {
             steps {
                 sh '''
+                    echo "Checking for Composer..."
                     if ! command -v composer &> /dev/null
                     then
                         echo "Composer not found, installing..."
-                        apt-get update && apt-get install -y wget php-cli unzip
+                        sudo apt-get update && sudo apt-get install -y wget php-cli unzip
                         wget -O composer-setup.php https://getcomposer.org/installer
                         php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+                    else
+                        echo "Composer is already installed."
                     fi
                 '''
             }
         }
 
-
         stage('Checkout') {
             steps {
-                script {
-                    checkout([$class: 'GitSCM',
-                              branches: [[name: '*/main']],
-                              userRemoteConfigs: [[url: 'https://github.com/brayadev/GestionEtablissement.git']]
-                    ])
-                }
+                checkout([$class: 'GitSCM',
+                          branches: [[name: '*/main']],
+                          userRemoteConfigs: [[url: 'https://github.com/brayadev/GestionEtablissement.git']]
+                ])
             }
         }
 
@@ -49,12 +49,6 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh './vendor/bin/phpunit --configuration phpunit.xml'
-            }
-        }
-
-        stage('Database Migrations') {
-            steps {
-                sh 'php artisan migrate --force'
             }
         }
     }
