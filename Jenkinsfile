@@ -24,9 +24,12 @@ pipeline {
 
         stage('Prepare Database') {
             steps {
+                // Créer le répertoire 'database' s'il n'existe pas
+                sh 'mkdir -p "/var/jenkins_home/workspace/Gestion pipeline/database"'
                 // Créer la base de données SQLite si elle n'existe pas
-                sh 'touch /var/jenkins_home/workspace/Gestion pipeline/database/database.sqlite'
-                sh 'chmod 775 /var/jenkins_home/workspace/Gestion pipeline/database'
+                sh 'touch "/var/jenkins_home/workspace/Gestion pipeline/database/database.sqlite"'
+                // Donner les bonnes permissions
+                sh 'chmod 775 "/var/jenkins_home/workspace/Gestion pipeline/database"'
             }
         }
 
