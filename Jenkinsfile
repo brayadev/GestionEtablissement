@@ -2,11 +2,34 @@ pipeline {
     agent any
 
     environment {
-        // Configurer les variables d'environnement nécessaires
-        COMPOSER_HOME = '/usr/local/bin/composer'  // Vérifie si Composer est installé
+        COMPOSER_HOME = '/usr/local/bin/composer'
     }
 
-    stages {  // ✅ Ajout du bloc "stages"
+    stages {
+        stage('Install Composer') {
+            steps {
+                sh '''
+                if ! [ -x "$(command -v composer)" ]; then
+                    echo "Composer not found, installing..."
+                    EXPECTED_SIGNATURE=$(wget -q -O - https://composer.github.io/installer.sig)
+                    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+                    ACTUAL_SIGNATURE=$(php -r "echo hash_file('sha384', 'composer-setup.php');")
+
+                    if [ "$EXPECTED_SIGNATURE" != "$ACTUAL_SIGNATURE" ]; then
+                        echo 'ERROR: Invalid Composer installer signature'
+                        rm composer-setup.php
+                        exit 1
+                    fi
+
+                    php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+                    rm composer-setup.php
+                else
+                    echo "Composer is already installed."
+                fi
+                '''
+            }
+        }
+
         stage('Checkout') {
             steps {
                 script {
@@ -20,14 +43,12 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                // Installer les dépendances avec Composer
-                sh 'composer install --no-interaction --prefer-dist'
+                sh 'export PATH=$PATH:/usr/local/bin && composer install --no-interaction --prefer-dist'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                // Analyser le projet avec SonarQube
                 withSonarQubeEnv('SonarQube') {
                     sh 'composer run-script sonar'
                 }
@@ -36,18 +57,16 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                // Lancer les tests avec PHPUnit
                 sh './vendor/bin/phpunit --configuration phpunit.xml'
             }
         }
 
         stage('Database Migrations') {
             steps {
-                // Appliquer les migrations Laravel (si nécessaire)
                 sh 'php artisan migrate --force'
             }
         }
-    }  // ✅ Fermeture correcte du bloc "stages"
+    }
 
     post {
         success {
