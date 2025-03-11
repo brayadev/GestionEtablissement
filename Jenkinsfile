@@ -40,11 +40,7 @@ pipeline {
             }
         }
 
-        stage('Generate APP_KEY') {
-            steps {
-                sh 'php artisan key:generate --env=testing'
-            }
-        }
+
 
         stage('Run Tests') {
             steps {
