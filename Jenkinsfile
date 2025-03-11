@@ -6,16 +6,17 @@ pipeline {
         COMPOSER_HOME = '/usr/local/bin/composer'  // Vérifie si Composer est installé
     }
 
-    stage('Checkout') {
-        steps {
-            script {
-                checkout([$class: 'GitSCM',
-                          branches: [[name: '*/main']],
-                          userRemoteConfigs: [[url: 'https://github.com/brayadev/GestionEtablissement.git']]
-                ])
+    stages {  // ✅ Ajout du bloc "stages"
+        stage('Checkout') {
+            steps {
+                script {
+                    checkout([$class: 'GitSCM',
+                              branches: [[name: '*/main']],
+                              userRemoteConfigs: [[url: 'https://github.com/brayadev/GestionEtablissement.git']]
+                    ])
+                }
             }
         }
-    }
 
         stage('Install Dependencies') {
             steps {
@@ -46,7 +47,7 @@ pipeline {
                 sh 'php artisan migrate --force'
             }
         }
-    }
+    }  // ✅ Fermeture correcte du bloc "stages"
 
     post {
         success {
