@@ -14,7 +14,7 @@ pipeline {
                      # Installer wget si non présent
                                 if ! command -v wget &> /dev/null; then
                                     echo "Installing wget..."
-                                    apt-get update && apt-get install -y wget
+                                    sudo apt-get update && sudo apt-get install -y wget
                                 fi
                     EXPECTED_SIGNATURE=$(wget -q -O - https://composer.github.io/installer.sig)
                     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
