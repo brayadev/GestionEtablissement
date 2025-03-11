@@ -19,23 +19,22 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'export PATH=$PATH:/usr/local/bin && composer install --no-interaction --prefer-dist'
-            }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh 'composer run-script sonar'
-                }
+                sh '/usr/local/bin/composer install --no-interaction --prefer-dist'
             }
         }
 
         stage('Run Tests') {
-            steps {
-                sh './vendor/bin/phpunit --configuration phpunit.xml'
-            }
-        }
+                    steps {
+                        sh './vendor/bin/phpunit --configuration phpunit.xml'
+                    }
+                }
+
+
+        stage('Build Docker Image') {
+                    steps {
+                        sh "docker build -t ${DOCKER_IMAGE}:latest ."
+                    }
+                }
     }
 
     post {
