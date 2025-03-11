@@ -13,7 +13,7 @@ pipeline {
                     if ! command -v composer &> /dev/null
                     then
                         echo "Composer not found, installing..."
-                        sudo apt-get update && sudo apt-get install -y wget php-cli unzip
+                        apt-get update && apt-get install -y wget php-cli unzip
                         wget -O composer-setup.php https://getcomposer.org/installer
                         php composer-setup.php --install-dir=/usr/local/bin --filename=composer
                     else
