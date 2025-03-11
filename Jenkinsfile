@@ -7,18 +7,19 @@ pipeline {
 
     stages {
         stage('Install Composer') {
-             steps {
-                    bat '''
-                        where composer || (
-                            echo Composer not found, installing...
-                            php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-                            php composer-setup.php
-                            del composer-setup.php
-                            move composer.phar C:\\Windows\\System32\\composer.exe
-                        )
-                    }'''
+            steps {
+                sh '''
+                    if ! command -v composer &> /dev/null
+                    then
+                        echo "Composer not found, installing..."
+                        apt-get update && apt-get install -y wget php-cli unzip
+                        wget -O composer-setup.php https://getcomposer.org/installer
+                        php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+                    fi
+                '''
             }
         }
+
 
         stage('Checkout') {
             steps {
