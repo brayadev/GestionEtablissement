@@ -6,13 +6,16 @@ pipeline {
         COMPOSER_HOME = '/usr/local/bin/composer'  // Vérifie si Composer est installé
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                // Récupérer le code source depuis le dépôt Git
-                git 'https://github.com/brayadev/GestionEtablissement.git'
+    stage('Checkout') {
+        steps {
+            script {
+                checkout([$class: 'GitSCM',
+                          branches: [[name: '*/main']],
+                          userRemoteConfigs: [[url: 'https://github.com/brayadev/GestionEtablissement.git']]
+                ])
             }
         }
+    }
 
         stage('Install Dependencies') {
             steps {
